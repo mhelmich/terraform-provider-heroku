@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	heroku "github.com/heroku/heroku-go/v3"
+	"github.com/heroku/heroku-go/v3"
 )
 
 type Config struct {
@@ -16,7 +16,7 @@ type Config struct {
 	Api *heroku.Service
 }
 
-// Client returns a new Service for accessing Heroku.
+// Client returns a new Config for accessing Heroku.
 func (c *Config) loadAndInitialize() error {
 	var debugHTTP = false
 	if os.Getenv("TF_LOG") == "TRACE" || os.Getenv("TF_LOG") == "DEBUG" {
