@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	heroku "github.com/heroku/heroku-go/v3"
+	heroku "github.com/mhelmich/heroku-go/v3"
 )
 
 func resourceHerokuAppFeature() *schema.Resource {

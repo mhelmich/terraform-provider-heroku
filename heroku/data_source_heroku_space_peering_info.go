@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/heroku/heroku-go/v3"
+	"github.com/mhelmich/heroku-go/v3"
 )
 
 func dataSourceHerokuSpacePeeringInfo() *schema.Resource {

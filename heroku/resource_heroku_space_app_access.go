@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	heroku "github.com/heroku/heroku-go/v3"
+	heroku "github.com/mhelmich/heroku-go/v3"
 )
 
 func resourceHerokuSpaceAppAccess() *schema.Resource {

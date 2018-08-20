@@ -285,6 +285,12 @@
   version = "v0.0.3"
 
 [[projects]]
+  branch = "v3.docker-releases"
+  name = "github.com/mhelmich/heroku-go"
+  packages = ["v3"]
+  revision = "69d00060c24bfb1aea2f5c000ec538bfd701df25"
+
+[[projects]]
   branch = "master"
   name = "github.com/mitchellh/cli"
   packages = ["."]
@@ -360,6 +366,15 @@
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/terraform-providers/terraform-provider-heroku"
+  packages = [
+    "helper/test",
+    "heroku"
+  ]
+  revision = "1ffd8540b43ebabbbb4cc4e102259098532dfe49"
+  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/ulikunitz/xz"
@@ -495,6 +510,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5cd2f66d4294c0bc3ca767909342397c1ad31e468635d66135c2746c82093d03"
+  inputs-digest = "c0ea7b6f407584df992153540e4bb16ebc04f6755c1c9e66ca0ab2df1999cbaa"
   solver-name = "gps-cdcl"
   solver-version = 1

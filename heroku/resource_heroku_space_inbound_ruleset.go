@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	heroku "github.com/heroku/heroku-go/v3"
+	heroku "github.com/mhelmich/heroku-go/v3"
 )
 
 func resourceHerokuSpaceInboundRuleset() *schema.Resource {
