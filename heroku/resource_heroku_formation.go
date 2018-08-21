@@ -12,11 +12,12 @@ import (
 
 // herokuFormation is a value type used to hold the details of a formation
 type herokuFormation struct {
-	AppName  string
-	Command  string
-	Quantity int
-	Size     string
-	Type     string
+	AppName     string
+	Command     string
+	Quantity    int
+	Size        string
+	Type        string
+	DockerImage string
 }
 
 type formation struct {
@@ -59,6 +60,11 @@ func resourceHerokuFormation() *schema.Resource {
 				Required:  true,
 				StateFunc: formatSize,
 			},
+
+			"docker_image": {
+				Type:     schema.TypeString,
+				Required: false,
+			},
 		},
 	}
 }
@@ -78,6 +84,7 @@ func resourceHerokuFormationRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("type", formation.Formation.Type)
 	d.Set("quantity", formation.Formation.Quantity)
 	d.Set("size", formation.Formation.Size)
+	d.Set("docker_image", formation.Formation.DockerImage)
 
 	return nil
 }
@@ -228,6 +235,7 @@ func resourceHerokuFormationImport(d *schema.ResourceData, meta interface{}) ([]
 	d.Set("type", formation.Type)
 	d.Set("quantity", formation.Quantity)
 	d.Set("size", formation.Size)
+	d.Set("docker_image", formation.DockerImage)
 
 	return []*schema.ResourceData{d}, nil
 }
