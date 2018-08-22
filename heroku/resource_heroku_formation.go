@@ -187,15 +187,15 @@ func getFormationType(d *schema.ResourceData) string {
 }
 
 func resourceHerokuFormationRetrieve(id string, appName string, client *heroku.Service) (*formation, error) {
-	formation := formation{Id: id, Client: client}
+	f := formation{Id: id, Client: client}
 
-	err := formation.GetInfo(appName)
+	err := f.GetInfo(appName)
 
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving formation: %s", err)
+		return nil, fmt.Errorf("error retrieving f: %s", err)
 	}
 
-	return &formation, nil
+	return &f, nil
 }
 
 func (f *formation) GetInfo(appName string) error {
