@@ -262,12 +262,6 @@
   revision = "3520598351bb3500a49ae9563f5539666ae0a27c"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/heroku/heroku-go"
-  packages = ["v3"]
-  revision = "ef2912d2324ccf45148830d1d1924fdca3b3cd9d"
-
-[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
@@ -369,10 +363,7 @@
 
 [[projects]]
   name = "github.com/terraform-providers/terraform-provider-heroku"
-  packages = [
-    "helper/test",
-    "heroku"
-  ]
+  packages = ["helper/test"]
   revision = "1ffd8540b43ebabbbb4cc4e102259098532dfe49"
   version = "v1.3.0"
 
@@ -511,6 +502,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c0ea7b6f407584df992153540e4bb16ebc04f6755c1c9e66ca0ab2df1999cbaa"
+  inputs-digest = "b67510c2ef58a986eccc5e33213c3326da12cb8494a257720be8ab3f4d549ac9"
   solver-name = "gps-cdcl"
   solver-version = 1
