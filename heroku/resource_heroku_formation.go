@@ -63,7 +63,7 @@ func resourceHerokuFormation() *schema.Resource {
 
 			"docker_image": {
 				Type:     schema.TypeString,
-				Required: false,
+				Optional: true,
 			},
 		},
 	}
@@ -215,6 +215,7 @@ func (f *formation) GetInfo(appName string) error {
 		f.Formation.Quantity = formation.Quantity
 		f.Formation.Size = formation.Size
 		f.Formation.Type = formation.Type
+		f.Formation.DockerImage = formation.DockerImage.ID
 	}
 
 	return nil
