@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	heroku "github.com/mhelmich/heroku-go/v3"
-	helper "github.com/terraform-providers/terraform-provider-heroku/helper/test"
+	helper "github.com/mhelmich/terraform-provider-heroku/helper/test"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
