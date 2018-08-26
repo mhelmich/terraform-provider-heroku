@@ -116,6 +116,12 @@ func resourceHerokuFormationCreate(d *schema.ResourceData, meta interface{}) err
 		opts.Quantity = &vs
 	}
 
+	if v, ok := d.GetOk("docker_image"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] docker image: %v", vs)
+		opts.DockerImage = &vs
+	}
+
 	log.Printf(fmt.Sprintf("[DEBUG] Updating %s formation...", appName))
 	f, err := client.FormationUpdate(context.TODO(), appName, getFormationType(d), opts)
 	if err != nil {
@@ -145,6 +151,12 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 		v := d.Get("quantity").(int)
 		log.Printf("[DEBUG] New Quantity: %v", v)
 		opts.Quantity = &v
+	}
+
+	if d.HasChange("docker_image") {
+		v := d.Get("docker_image").(string)
+		log.Printf("[DEBUG] New docker image: %v", v)
+		opts.DockerImage = &v
 	}
 
 	appName := getAppName(d)
