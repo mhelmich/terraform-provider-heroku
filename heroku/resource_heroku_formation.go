@@ -131,7 +131,12 @@ func resourceHerokuFormationCreate(d *schema.ResourceData, meta interface{}) err
 	d.SetId(f.ID)
 	log.Printf("[INFO] Formation ID: %s", d.Id())
 
-	return resourceHerokuFormationRead(d, meta)
+	err = resourceHerokuFormationRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return d.Set("docker_image", opts.DockerImage)
 }
 
 func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -178,7 +183,12 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 
 	d.Partial(false)
 
-	return resourceHerokuFormationRead(d, meta)
+	err = resourceHerokuFormationRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return d.Set("docker_image", opts.DockerImage)
 }
 
 // There's no DELETE endpoint for the formation resource so this function will be a no-op.
