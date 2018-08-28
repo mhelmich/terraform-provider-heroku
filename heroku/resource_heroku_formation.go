@@ -160,7 +160,7 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("docker_image") {
 		v := d.Get("docker_image").(string)
-		log.Printf("[DEBUG] New docker image: %v", v)
+		log.Printf("[DEBUG] New Docker Image: %v", v)
 		opts.DockerImage = &v
 	}
 
