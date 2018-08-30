@@ -71,11 +71,8 @@ func resourceHerokuFormation() *schema.Resource {
 
 func resourceHerokuFormationRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*heroku.Service)
-
 	appName := getAppName(d)
-
 	formation, err := resourceHerokuFormationRetrieve(d.Id(), appName, client)
-
 	if err != nil {
 		return err
 	}
@@ -84,7 +81,9 @@ func resourceHerokuFormationRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("type", formation.Formation.Type)
 	d.Set("quantity", formation.Formation.Quantity)
 	d.Set("size", formation.Formation.Size)
-	d.Set("docker_image", formation.Formation.DockerImage)
+	if formation.Formation.DockerImage != "" {
+		d.Set("docker_image", formation.Formation.DockerImage)
+	}
 
 	return nil
 }
@@ -92,14 +91,13 @@ func resourceHerokuFormationRead(d *schema.ResourceData, meta interface{}) error
 // resourceHerokuFormationCreate method will execute an UPDATE to the formation.
 // There is no CREATE method on the formation endpoint.
 func resourceHerokuFormationCreate(d *schema.ResourceData, meta interface{}) error {
+	var err error
 	client := meta.(*heroku.Service)
-
 	opts := heroku.FormationUpdateOpts{}
-
 	appName := getAppName(d)
 
 	// check if appName is valid
-	_, err := doesHerokuAppExist(appName, client)
+	_, err = doesHerokuAppExist(appName, client)
 	if err != nil {
 		return err
 	}
@@ -124,13 +122,39 @@ func resourceHerokuFormationCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf(fmt.Sprintf("[DEBUG] Updating %s formation...", appName))
 	f, err := client.FormationUpdate(context.TODO(), appName, getFormationType(d), opts)
-	if err != nil {
+
+	// HACK
+	// Herokus API returns this:
+	// 2018/08/30 11:35:13 HTTP/1.1 422 Unprocessable Entity
+	// Warning-Message: The process type web was not updated, because it is already running the specified docker image.
+	// But the error gets mapped to:
+	// Patch https://api.heroku.com/apps/tern-virginia/formation/web: Requested type Standard-2X is not available. Please use Private-S, Private-M, or Private-L.
+	// And that puts us in a non-recoverable position if we try to release the same image to an app that has the image already.
+	// The only way to make progress is to ignore this error.
+	if err != nil && !strings.Contains(err.Error(), "Requested type") {
 		return err
 	}
 
-	d.SetId(f.ID)
-	log.Printf("[INFO] Formation ID: %s", d.Id())
+	if f.ID != "" {
+		d.SetId(f.ID)
+	} else {
 
+		v, ok := d.GetOk("type")
+		if !ok {
+			return fmt.Errorf("Can't find formation type")
+		}
+
+		formationType := v.(string)
+		var formation *heroku.Formation
+		formation, err = client.FormationInfo(context.Background(), appName, formationType)
+		if err != nil {
+			return err
+		}
+
+		d.SetId(formation.ID)
+	}
+
+	log.Printf("[INFO] Formation ID: %s", d.Id())
 	err = resourceHerokuFormationRead(d, meta)
 	if err != nil {
 		return err
@@ -176,11 +200,19 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 	updatedFormation, err := client.FormationUpdate(context.TODO(),
 		appName, getFormationType(d), opts)
 
-	if err != nil {
+	// HACK
+	// Herokus API returns this:
+	// 2018/08/30 11:35:13 HTTP/1.1 422 Unprocessable Entity
+	// Warning-Message: The process type web was not updated, because it is already running the specified docker image.
+	// But the error gets mapped to:
+	// Patch https://api.heroku.com/apps/tern-virginia/formation/web: Requested type Standard-2X is not available. Please use Private-S, Private-M, or Private-L.
+	// And that puts us in a non-recoverable position if we try to release the same image to an app that has the image already.
+	// The only way to make progress is to ignore this error.
+	if err != nil && !strings.Contains(err.Error(), "Requested type") {
 		return err
 	}
-	d.SetId(updatedFormation.ID)
 
+	d.SetId(updatedFormation.ID)
 	d.Partial(false)
 
 	err = resourceHerokuFormationRead(d, meta)
@@ -209,7 +241,7 @@ func getFormationType(d *schema.ResourceData) string {
 }
 
 func resourceHerokuFormationRetrieve(id string, appName string, client *heroku.Service) (*formation, error) {
-	f := formation{Id: id, Client: client}
+	f := &formation{Id: id, Client: client}
 
 	err := f.GetInfo(appName)
 
@@ -217,29 +249,28 @@ func resourceHerokuFormationRetrieve(id string, appName string, client *heroku.S
 		return nil, fmt.Errorf("error retrieving f: %s", err)
 	}
 
-	return &f, nil
+	return f, nil
 }
 
 func (f *formation) GetInfo(appName string) error {
-	var errs []error
-	var err error
-
 	log.Printf("[INFO] The formation's app name is %s", appName)
 	log.Printf("[INFO] f.Id is %s", f.Id)
 
 	formation, err := f.Client.FormationInfo(context.TODO(), appName, f.Id)
 	if err != nil {
-		errs = append(errs, err)
-	} else {
-		f.Formation = &herokuFormation{}
-		f.Formation.AppName = formation.App.Name
-		f.Formation.Command = formation.Command
-		f.Formation.Quantity = formation.Quantity
-		f.Formation.Size = formation.Size
-		f.Formation.Type = formation.Type
-		f.Formation.DockerImage = formation.DockerImage.ID
+		log.Printf("ERROR: %s", err.Error())
+		return err
 	}
 
+	f.Formation = &herokuFormation{}
+	f.Formation.AppName = formation.App.Name
+	f.Formation.Command = formation.Command
+	f.Formation.Quantity = formation.Quantity
+	f.Formation.Size = formation.Size
+	f.Formation.Type = formation.Type
+	if formation.DockerImage != nil {
+		f.Formation.DockerImage = formation.DockerImage.ID
+	}
 	return nil
 }
 
