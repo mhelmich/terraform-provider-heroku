@@ -221,7 +221,6 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	// d.SetId(updatedFormation.ID)
 	d.Partial(false)
 
 	err = resourceHerokuFormationRead(d, meta)
