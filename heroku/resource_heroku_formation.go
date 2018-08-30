@@ -81,6 +81,7 @@ func resourceHerokuFormationRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("type", formation.Formation.Type)
 	d.Set("quantity", formation.Formation.Quantity)
 	d.Set("size", formation.Formation.Size)
+	// HACK
 	if formation.Formation.DockerImage != "" {
 		d.Set("docker_image", formation.Formation.DockerImage)
 	}
@@ -135,28 +136,11 @@ func resourceHerokuFormationCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	// HACK
 	err = getAndSetFormationId(d, f, client)
 	if err != nil {
 		return err
 	}
-
-	// if f.ID != "" {
-	// 	d.SetId(f.ID)
-	// } else {
-	// 	v, ok := d.GetOk("type")
-	// 	if !ok {
-	// 		return fmt.Errorf("Can't find formation type")
-	// 	}
-	//
-	// 	formationType := v.(string)
-	// 	var formation *heroku.Formation
-	// 	formation, err = client.FormationInfo(context.Background(), appName, formationType)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	//
-	// 	d.SetId(formation.ID)
-	// }
 
 	log.Printf("[INFO] Formation ID: %s", d.Id())
 	err = resourceHerokuFormationRead(d, meta)
@@ -216,6 +200,7 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	// HACK
 	err = getAndSetFormationId(d, updatedFormation, client)
 	if err != nil {
 		return err
@@ -228,6 +213,7 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	// HACK
 	return d.Set("docker_image", opts.DockerImage)
 }
 
@@ -276,6 +262,7 @@ func (f *formation) GetInfo(appName string) error {
 	f.Formation.Quantity = formation.Quantity
 	f.Formation.Size = formation.Size
 	f.Formation.Type = formation.Type
+	// HACK
 	if formation.DockerImage != nil {
 		f.Formation.DockerImage = formation.DockerImage.ID
 	}
@@ -297,7 +284,10 @@ func resourceHerokuFormationImport(d *schema.ResourceData, meta interface{}) ([]
 	d.Set("type", formation.Type)
 	d.Set("quantity", formation.Quantity)
 	d.Set("size", formation.Size)
-	d.Set("docker_image", formation.DockerImage)
+	// HACK
+	if formation.DockerImage != nil && formation.DockerImage.ID != "" {
+		d.Set("docker_image", formation.DockerImage.ID)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
