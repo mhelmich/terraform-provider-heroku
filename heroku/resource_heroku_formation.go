@@ -135,24 +135,28 @@ func resourceHerokuFormationCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	if f.ID != "" {
-		d.SetId(f.ID)
-	} else {
-
-		v, ok := d.GetOk("type")
-		if !ok {
-			return fmt.Errorf("Can't find formation type")
-		}
-
-		formationType := v.(string)
-		var formation *heroku.Formation
-		formation, err = client.FormationInfo(context.Background(), appName, formationType)
-		if err != nil {
-			return err
-		}
-
-		d.SetId(formation.ID)
+	err = getAndSetFormationId(d, f, client)
+	if err != nil {
+		return err
 	}
+
+	// if f.ID != "" {
+	// 	d.SetId(f.ID)
+	// } else {
+	// 	v, ok := d.GetOk("type")
+	// 	if !ok {
+	// 		return fmt.Errorf("Can't find formation type")
+	// 	}
+	//
+	// 	formationType := v.(string)
+	// 	var formation *heroku.Formation
+	// 	formation, err = client.FormationInfo(context.Background(), appName, formationType)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	//
+	// 	d.SetId(formation.ID)
+	// }
 
 	log.Printf("[INFO] Formation ID: %s", d.Id())
 	err = resourceHerokuFormationRead(d, meta)
@@ -212,7 +216,12 @@ func resourceHerokuFormationUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	d.SetId(updatedFormation.ID)
+	err = getAndSetFormationId(d, updatedFormation, client)
+	if err != nil {
+		return err
+	}
+
+	// d.SetId(updatedFormation.ID)
 	d.Partial(false)
 
 	err = resourceHerokuFormationRead(d, meta)
@@ -332,4 +341,26 @@ func formatSize(quant interface{}) string {
 	}
 
 	return strings.Join(formattedSlice, "-")
+}
+
+func getAndSetFormationId(d *schema.ResourceData, f *heroku.Formation, client *heroku.Service) error {
+	if f.ID != "" {
+		d.SetId(f.ID)
+	} else {
+		appName := getAppName(d)
+		v, ok := d.GetOk("type")
+		if !ok {
+			return fmt.Errorf("Can't find formation type")
+		}
+
+		formationType := v.(string)
+		formation, err := client.FormationInfo(context.Background(), appName, formationType)
+		if err != nil {
+			return err
+		}
+
+		d.SetId(formation.ID)
+	}
+
+	return nil
 }
